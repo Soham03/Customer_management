@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import {useAuth} from "../../context/authContext"
+import { useAuth } from "../../context/authContext";
 import axios from "axios";
-import { useParams,Navigate } from "react-router-dom";
+import { useParams, Navigate, useLocation } from "react-router-dom";
 import api from "../../services/api";
 const TransactionPage = () => {
-    const { userLoggedIn } = useAuth();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const source = queryParams.get("source");
+
+  const { userLoggedIn } = useAuth();
 
   const { accountId } = useParams();
   const [transactionInfo, setTransactionDetails] = useState(null);
@@ -12,7 +16,6 @@ const TransactionPage = () => {
     const fetchTransactions = async () => {
       try {
         const response = await api.get(`/${accountId}/transactions`);
-        console.log(response.data[0]);
         setTransactionDetails(response.data[0]);
       } catch (error) {
         console.error("Error fetching transactions:", error);
@@ -24,7 +27,7 @@ const TransactionPage = () => {
 
   return (
     <div className="m-[5rem]">
-         {!userLoggedIn && <Navigate to={"/login"} replace={true} />}
+      {!userLoggedIn && <Navigate to={"/login"} replace={true} />}
       <h1 className="m-5 font-semiBold text-center text-3xl">
         TRANSACTIONS FOR ACCOUNT NO: {accountId}
       </h1>
@@ -48,15 +51,16 @@ const TransactionPage = () => {
           </thead>
           <tbody className="">
             {transactionInfo?.transactions?.map((transaction, index) => (
-              <tr
-                key={index}
-                className="bg-white border border-gray-300"
-              >
-                <td className="p-2 border border-gray-300 text-left ">
+              <tr key={index} className="bg-white border border-gray-300">
+                <td
+                  className={`p-2 border border-gray-300 text-left ${
+                    source==="filter"?transaction.amount < 5000 ? "bg-yellow-200" : "":""
+                  }`}
+                >
                   {transaction.amount}
                 </td>
                 <td className="p-2 border border-gray-300 text-left ">
-                {new Date(transaction.date).toLocaleDateString()}
+                  {new Date(transaction.date).toLocaleDateString()}
                 </td>
                 <td className="p-2 border border-gray-300 text-left ">
                   {parseFloat(transaction.price).toFixed(3)}

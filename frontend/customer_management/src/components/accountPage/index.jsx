@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/authContext";
-
-import axios from "axios";
 import { Link,Navigate } from "react-router-dom";
 import api from "../../services/api";
 const AccountPage = () => {
+
   const { userLoggedIn } = useAuth();
 
   const [customers, setCustomers] = useState([]);
@@ -12,8 +11,8 @@ const AccountPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [isLoading, setIsLoading] = useState(false);
-  const [showFilterAccountIDs, setShowFilterAccountIDs] = useState(false);
-  const [showDistinctProducts, setDistinctProducts] = useState(true);
+  const [showFilterAccountIDs, setShowFilterAccountIDs] = useState(true);
+  const [showDistinctProducts, setDistinctProducts] = useState(false);
   const [products, setProducts] = useState(null);
 
   useEffect(() => {
@@ -69,11 +68,9 @@ const AccountPage = () => {
   };
 
   const handlePageChange = (direction) => {
-    setCurrentPage((prevPage) => {
-      if (direction === "next") return prevPage + 1;
-      if (direction === "prev") return Math.max(prevPage - 1, 1);
-      return prevPage;
-    });
+
+    setCurrentPage((prevPage) => (direction === "next" ? prevPage + 1 : Math.max(prevPage - 1, 1)));
+
   };
   return (
     <div className="m-[10rem]">
@@ -93,11 +90,12 @@ const AccountPage = () => {
         </button>
       </div>
       <div className="grid grid-cols-2">
-        <div className="">
-          <h1 className="font-medium mb-3 text-center">
+        <div className="border-2 mx-2">
+          <h1 className="font-medium mb-3 text-center mt-2">
             List of Active Customers:
           </h1>
-          <table className="border-solid border-2 border-black-600">
+          <div className="justify-center flex">
+          <table className="border-solid border-2 border-black-600 ">
             <thead>
               <tr
                 key={Math.random() * 10 + 5}
@@ -110,12 +108,12 @@ const AccountPage = () => {
             </thead>
             <tbody>
               {customers?.map((customer) => (
-                <tr key={Math.random() * 10}>
+                <tr key={customer._id}>
                   <td className="p-3 border-2 text-center">{customer.name}</td>
                   <td className="p-3 border-2 text-center">
                     {customer.address}
                   </td>
-                  <td className="border-2">
+                  <td className="border-2 mx-2">
                     {customer.accounts.map((account) => (
                       <div className="p-3 text-center" key={account}>
                         <Link to={`/transactions/${account}`}>{account}</Link>
@@ -126,11 +124,12 @@ const AccountPage = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
         <div className="">
           {showFilterAccountIDs ? (
-            <div className="border-2 p-2">
-              <h1 className="mb-3 font-medium text-center">
+            <div className="border-2">
+              <h1 className="mb-3 font-medium text-center mt-2">
                 Account IDs whose at least one transaction amount is lesser than
                 5000:
               </h1>
@@ -154,7 +153,7 @@ const AccountPage = () => {
                         {filteredAccountIDs.map((accountId) => (
                           <tr key={Math.random() * 10}>
                             <td className="p-3 border-2 ">
-                              <Link to={`/transactions/${accountId}`}>
+                              <Link to={`/transactions/${accountId}/?source=filter`}>
                                 {accountId}
                               </Link>
                             </td>
@@ -164,9 +163,9 @@ const AccountPage = () => {
                     </table>
                   </div>
 
-                  <div className="flex justify-between mt-4">
+                  <div className="flex justify-between mt-4 p-2">
                     <button
-                      className="border-2 p-2"
+                      className="border-2 w-[6rem] py-2"
                       onClick={() => handlePageChange("prev")}
                       disabled={currentPage === 1}
                     >
@@ -174,8 +173,10 @@ const AccountPage = () => {
                     </button>
                     <span>Page {currentPage}</span>
                     <button
-                      className="border-2 p-2"
-                      onClick={() => handlePageChange("next")}
+                      className="border-2 w-[6rem] py-2"
+                      onClick={() => {
+                        console.log("next")
+                        handlePageChange("next")}}
                     >
                       Next
                     </button>
@@ -196,7 +197,7 @@ const AccountPage = () => {
                       className="border-solid border-2 border-black-600"
                     >
                       <th className="p-3 font-medium border-r-2 text-center">
-                        Account IDs:
+                        PRODUCTS:
                       </th>
                     </tr>
                   </thead>
